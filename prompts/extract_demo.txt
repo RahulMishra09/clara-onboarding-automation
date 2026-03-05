@@ -1,0 +1,155 @@
+You are an expert business analyst extracting structured information from demo call transcripts for Clara AI, a voice AI service for trade businesses.
+
+# Your Task
+Extract business rules and operational details from the demo call transcript below and output a structured JSON document following the Account Memo schema.
+
+# Critical Rules (READ CAREFULLY)
+
+## 1. NEVER HALLUCINATE DATA
+- If information is not explicitly stated in the transcript, DO NOT invent it
+- Use `null` for missing fields
+- Add missing information to the `questions_or_unknowns` array
+- It is BETTER to flag something as unknown than to guess
+
+## 2. DEMO CALLS ARE EXPLORATORY
+- Demo calls provide directional information, not precise operational details
+- Expect many unknowns - this is normal for v1
+- Focus on capturing the general business model and requirements
+- Specific details (exact phone numbers, precise hours) often come later in onboarding
+
+## 3. ACCOUNT ID GENERATION
+- Extract company name from transcript
+- Generate account_id as lowercase slug: "company-name" → "company-name"
+- Example: "Acme Fire Protection" → "acme-fire-protection"
+- Example: "Bob's HVAC Services" → "bobs-hvac-services"
+
+## 4. WHAT TO EXTRACT
+
+### Business Hours
+- Days of operation (Monday, Tuesday, etc.)
+- Start time (HH:MM format, 24-hour)
+- End time (HH:MM format, 24-hour)
+- Timezone (America/New_York, America/Los_Angeles, etc.)
+- If ANY component is unclear → set to null and add to unknowns
+
+### Services Supported
+- List all services mentioned (e.g., "fire protection", "sprinkler systems", "fire alarms")
+- Use lowercase, descriptive names
+- Include both emergency and non-emergency services
+
+### Emergency Definition
+- What situations count as emergencies?
+- Examples: "sprinkler leak", "fire alarm triggered", "gas leak", "no heat in winter"
+- Be specific - extract exact phrases used in the call
+
+### Routing Rules
+- Emergency contacts (primary, secondary)
+- Non-emergency routing (business hours vs after hours)
+- Call transfer rules (timeout, retries, fail message)
+- Phone tree structure if mentioned
+
+### Integration Constraints
+- ServiceTrade rules (e.g., "never create sprinkler jobs in ServiceTrade")
+- Other system limitations or requirements
+- Data sync rules
+
+### Flow Summaries
+- Briefly describe the business hours call flow
+- Briefly describe the after-hours call flow
+- Keep these concise (2-3 sentences each)
+
+## 5. OUTPUT FORMAT
+
+Return ONLY valid JSON matching this structure:
+
+```json
+{
+  "account_id": "string (generated slug)",
+  "company_name": "string (exact name from transcript)",
+  "business_hours": {
+    "days": ["Monday", "Tuesday", ...] or null,
+    "start": "HH:MM" or null,
+    "end": "HH:MM" or null,
+    "timezone": "America/New_York" or null
+  },
+  "office_address": "string or null",
+  "services_supported": ["service1", "service2", ...] or null,
+  "emergency_definition": ["emergency1", "emergency2", ...] or null,
+  "emergency_routing_rules": {
+    "primary_contact": "string or null",
+    "secondary_contact": "string or null",
+    "order": ["step1", "step2", ...] or null,
+    "fallback": "string or null"
+  },
+  "non_emergency_routing_rules": {
+    "business_hours": "string or null",
+    "after_hours": "string or null"
+  },
+  "call_transfer_rules": {
+    "timeout_seconds": 60,
+    "max_retries": 2,
+    "fail_message": "string or null"
+  },
+  "integration_constraints": ["constraint1", ...],
+  "after_hours_flow_summary": "string or null",
+  "office_hours_flow_summary": "string or null",
+  "questions_or_unknowns": [
+    "missing: exact business hours",
+    "unclear: emergency contact phone number",
+    "not discussed: ServiceTrade integration details"
+  ],
+  "notes": "string (brief additional context)",
+  "version": "v1",
+  "last_updated": "2025-03-05T12:00:00Z"
+}
+```
+
+## 6. QUESTIONS OR UNKNOWNS FORMAT
+
+Use clear, actionable phrases:
+- "missing: [what's missing]"
+- "unclear: [what needs clarification]"
+- "not discussed: [what wasn't covered]"
+
+Examples:
+- "missing: exact business hours (only mentioned 'regular hours')"
+- "unclear: whether sprinkler emergencies go to on-call technician or manager"
+- "not discussed: after-hours voicemail handling"
+
+## 7. COMMON PATTERNS IN TRADE BUSINESSES
+
+### Fire Protection / Sprinkler Companies
+- Emergency: leaks, alarm triggers, system failures
+- Services: inspection, installation, repair, monitoring
+- Integration: ServiceTrade for work orders
+- Routing: Often have on-call technicians 24/7
+
+### HVAC Companies
+- Emergency: no heat (winter), no AC (summer), gas smell
+- Services: installation, maintenance, repair
+- Seasonal hours variations common
+
+### Electrical Services
+- Emergency: power outage, sparking, burning smell
+- Services: installation, troubleshooting, panel upgrades
+- Safety-critical nature affects routing
+
+---
+
+# TRANSCRIPT TO ANALYZE
+
+{{TRANSCRIPT}}
+
+---
+
+# OUTPUT INSTRUCTIONS
+
+1. Read the entire transcript carefully
+2. Extract information according to the rules above
+3. For any missing or unclear information, add to questions_or_unknowns
+4. Return ONLY the JSON output (no markdown, no explanation)
+5. Ensure all JSON is valid and properly formatted
+6. Set version to "v1" (this is from the demo call)
+7. Use current timestamp for last_updated in ISO 8601 format
+
+Remember: This is a DEMO CALL. It's expected and acceptable to have many items in questions_or_unknowns. DO NOT invent data to fill gaps.

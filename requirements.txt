@@ -1,0 +1,29 @@
+# Core dependencies
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+
+# LLM providers (all free-tier compatible)
+anthropic>=0.18.0
+openai>=1.10.0
+ollama>=0.1.6
+
+# Data processing
+jsonschema>=4.20.0
+
+# Storage options (optional)
+# supabase>=2.3.0
+
+# Task tracker integrations (optional)
+# asana>=5.0.0
+# py-trello>=0.19.0
+
+# Utilities
+requests>=2.31.0
+python-dateutil>=2.8.2
+
+# Testing
+pytest>=8.0.0
+pytest-mock>=3.12.0
+
+# Logging
+colorlog>=6.8.0

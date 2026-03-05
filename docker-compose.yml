@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: clara-n8n
+    restart: unless-stopped
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    environment:
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-http}
+      - N8N_HOST=${N8N_HOST:-localhost}
+      - N8N_PORT=${N8N_PORT:-5678}
+      - WEBHOOK_URL=${N8N_PROTOCOL:-http}://${N8N_HOST:-localhost}:${N8N_PORT:-5678}/
+      - GENERIC_TIMEZONE=America/New_York
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./workflows:/workflows
+      - ./scripts:/scripts
+      - ./data:/data
+      - ./outputs:/outputs
+      - ./logs:/logs
+    networks:
+      - clara-network
+
+  # Optional: PostgreSQL for n8n (if needed for production)
+  # postgres:
+  #   image: postgres:14-alpine
+  #   container_name: clara-postgres
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_USER: n8n
+  #     POSTGRES_PASSWORD: n8n_password
+  #     POSTGRES_DB: n8n
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   networks:
+  #     - clara-network
+
+volumes:
+  n8n_data:
+  # postgres_data:
+
+networks:
+  clara-network:
+    driver: bridge

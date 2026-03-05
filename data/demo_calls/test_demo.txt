@@ -1,0 +1,62 @@
+Demo Call Transcript - Acme Fire Protection
+
+Date: March 5, 2026
+Attendees: Sales Rep (Clara AI), John Smith (Owner - Acme Fire Protection)
+
+---
+
+Sales Rep: Hi John, thanks for joining the demo today. Tell me about Acme Fire Protection.
+
+John: Sure! We're Acme Fire Protection. We've been in business for 20 years serving commercial buildings in the greater Chicago area. We specialize in fire alarm systems, sprinkler installation and maintenance, and fire extinguisher services.
+
+Sales Rep: Great! What hours do you typically operate?
+
+John: We're open regular business hours, Monday through Friday. Our office staff is here during the day.
+
+Sales Rep: And what about after hours? Do you have emergency coverage?
+
+John: Oh yes, absolutely. In our business, emergencies can happen anytime. If there's a sprinkler leak or a fire alarm going off, we need to respond immediately. We have technicians on call 24/7.
+
+Sales Rep: That's important. How do you currently handle those after-hours calls?
+
+John: Right now, everything comes to my cell phone after 5 PM. If I can't answer, it goes to voicemail. Not ideal, honestly. That's why we're interested in Clara.
+
+Sales Rep: I understand. What would constitute an emergency for your business?
+
+John: Definitely anything with active water flow - sprinkler leaks, broken pipes, that kind of thing. Fire alarms going off. System failures at critical facilities like hospitals or data centers. Gas leaks if we're working on that system.
+
+Sales Rep: Got it. And for non-emergency calls after hours?
+
+John: Those can wait until the morning. Things like scheduling routine inspections, requesting quotes, general questions about our services.
+
+Sales Rep: Makes sense. Do you use any particular software for managing your work orders?
+
+John: Yes, we use ServiceTrade. It's been great for us. One thing though - we only use it for fire alarm work. We have a separate system for sprinkler jobs because of how our contracts are structured. So it's important that any integration with ServiceTrade only creates tickets for fire alarm related calls, not sprinkler stuff.
+
+Sales Rep: That's a really important detail, I'm glad you mentioned it. Let me make a note of that.
+
+John: Yeah, that's critical. We had a previous system that messed that up and it was a nightmare to untangle.
+
+Sales Rep: Understood. So just to recap - during business hours, Clara would answer calls, gather information, and try to transfer to your office. After hours, Clara would determine if it's an emergency. If yes, try to reach your on-call technician. If no, take a message for callback the next business day. And never create sprinkler jobs in ServiceTrade. Does that sound right?
+
+John: Exactly! That's perfect. Although I should mention, we might add a second on-call person as backup, but we haven't figured that out yet.
+
+Sales Rep: No problem, we can configure that when you're ready. What's the best callback number for your office?
+
+John: The main office line is 312-555-0100. My cell is 312-555-0199 but I'd rather not give that out to everyone.
+
+Sales Rep: Of course. And your office address?
+
+John: We're at 1500 West Division Street, Chicago, Illinois.
+
+Sales Rep: Perfect. I think we have everything we need to get started. Any other questions about how Clara would work for Acme Fire Protection?
+
+John: No, I think you've covered it. This would really help us not miss calls, especially after hours. Right now I feel like I'm always on duty.
+
+Sales Rep: That's exactly what Clara is designed to help with. We'll get you set up and you'll have Clara handling those first-line calls in no time.
+
+John: Sounds great. Looking forward to it!
+
+---
+
+End of Demo Call

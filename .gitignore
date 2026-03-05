@@ -1,0 +1,47 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+
+# n8n
+.n8n/
+n8n_data/
+
+# Logs
+logs/*.log
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Output files (keep structure but ignore generated content)
+outputs/accounts/*/
+
+# Keep directory structure
+!outputs/accounts/.gitkeep
+!data/demo_calls/.gitkeep
+!data/onboarding_calls/.gitkeep
+!logs/.gitkeep
+
+# Test outputs
+test_outputs/
+
+# Temporary files
+*.tmp
+.cache/

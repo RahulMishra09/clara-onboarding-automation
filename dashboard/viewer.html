@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clara AI - Account Viewer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: rgba(30, 41, 59, 0.7);
+            --surface-hover: rgba(51, 65, 85, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-highlight: rgba(255, 255, 255, 0.2);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --glass-blur: blur(16px);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            /* Syntax Highlighting Colors - Dark Mode */
+            --sh-key: #fbbf24;
+            /* Amber */
+            --sh-string: #34d399;
+            /* Emerald */
+            --sh-number: #38bdf8;
+            /* Sky Blue */
+            --sh-boolean: #c084fc;
+            /* Purple */
+            --sh-null: #64748b;
+            /* Slate */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Animations */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+                filter: blur(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .animate-up {
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 2rem;
+            min-height: 100vh;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .bg-orbs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(59, 130, 246, 0.5);
+            top: -150px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 600px;
+            height: 600px;
+            background: rgba(139, 92, 246, 0.4);
+            bottom: -200px;
+            right: -150px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: rgba(16, 185, 129, 0.2);
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-panel {
+            background: var(--surface-color);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
+        }
+
+        header {
+            padding: 2.5rem 2rem;
+            margin-bottom: 2.5rem;
+            border-radius: 16px;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            color: var(--text-secondary);
+        }
+
+        .selector {
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .selector::before {
+            content: '🏢';
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+        }
+
+        select {
+            width: 100%;
+            padding: 1rem 1.25rem 1rem 3.5rem;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1.05rem;
+            color: #fff;
+            font-family: inherit;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow-md);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1.25rem center;
+            background-size: 1.2em;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2), var(--shadow-md);
+        }
+
+        select option {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            padding: 1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .tabs::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .tabs::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            transition: var(--transition);
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+        }
+
+        .tab.active {
+            background: var(--accent-primary);
+            color: white;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            border-radius: 16px;
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        pre {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .json-key {
+            color: var(--sh-key);
+            font-weight: 500;
+        }
+
+        .json-string {
+            color: var(--sh-string);
+        }
+
+        .json-number {
+            color: var(--sh-number);
+        }
+
+        .json-boolean {
+            color: var(--sh-boolean);
+            font-weight: 500;
+        }
+
+        .json-null {
+            color: var(--sh-null);
+            font-style: italic;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loading::after {
+            content: '';
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error {
+            background: rgba(239, 68, 68, 0.1);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            color: #fca5a5;
+            text-align: center;
+        }
+
+        .info-panel {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid var(--accent-primary);
+            padding: 1.25rem;
+            margin-bottom: 2rem;
+            border-radius: 0 8px 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .info-panel strong {
+            color: #60a5fa;
+            margin-right: 0.5rem;
+        }
+
+        .changelog-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-primary);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .changelog-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: var(--border-highlight);
+        }
+
+        .changelog-field {
+            font-weight: 600;
+            color: #60a5fa;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .changelog-field::before {
+            content: '❖';
+            font-size: 0.9em;
+        }
+
+        .changelog-values {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1.5rem;
+            align-items: stretch;
+            margin: 1rem 0;
+        }
+
+        .value-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            overflow-x: auto;
+        }
+
+        .value-box strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .arrow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        }
+
+        .reason-text {
+            color: #cbd5e1;
+            font-size: 0.95rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed rgba(255, 255, 255, 0.1);
+            font-style: italic;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="glass-panel animate-up">
+            <h1>Clara AI - Account Viewer</h1>
+            <p>View detailed account data, memos, agent specs, and changelogs</p>
+        </header>
+
+        <div class="selector animate-up delay-1">
+            <select id="accountSelector" onchange="loadAccount()">
+                <option value="">Select an account...</option>
+            </select>
+        </div>
+
+        <div id="content" style="display: none;" class="animate-up delay-2">
+            <div class="tabs">
+                <div class="tab active" onclick="showTab('v2-memo')">v2 Memo</div>
+                <div class="tab" onclick="showTab('v2-agent')">v2 Agent Spec</div>
+                <div class="tab" onclick="showTab('changelog')">Changelog</div>
+                <div class="tab" onclick="showTab('v1-memo')">v1 Memo</div>
+                <div class="tab" onclick="showTab('v1-agent')">v1 Agent Spec</div>
+            </div>
+
+            <div id="v2-memo" class="tab-content active glass-panel">
+                <div class="info-panel">
+                    <strong>v2 Account Memo:</strong> Refined data from onboarding call with resolved unknowns
+                </div>
+                <pre id="v2-memo-content">Loading...</pre>
+            </div>
+
+            <div id="v2-agent" class="tab-content glass-panel">
+                <div class="info-panel">
+                    <strong>v2 Agent Spec:</strong> Retell AI configuration with complete business rules
+                </div>
+                <pre id="v2-agent-content">Loading...</pre>
+            </div>
+
+            <div id="changelog" class="tab-content glass-panel">
+                <div class="info-panel">
+                    <strong>Changelog:</strong> Track all changes from v1 to v2
+                </div>
+                <div id="changelog-content">Loading...</div>
+            </div>
+
+            <div id="v1-memo" class="tab-content glass-panel">
+                <div class="info-panel">
+                    <strong>v1 Account Memo:</strong> Initial data from demo call (may have unknowns)
+                </div>
+                <pre id="v1-memo-content">Loading...</pre>
+            </div>
+
+            <div id="v1-agent" class="tab-content glass-panel">
+                <div class="info-panel">
+                    <strong>v1 Agent Spec:</strong> Initial Retell AI configuration
+                </div>
+                <pre id="v1-agent-content">Loading...</pre>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            Loading accounts...
+        </div>
+    </div>
+
+    <script>
+        let currentAccount = null;
+
+        // Load accounts list
+        async function loadAccounts() {
+            try {
+                const response = await fetch('http://localhost:8000/api/accounts');
+                const data = await response.json();
+
+                const selector = document.getElementById('accountSelector');
+                selector.innerHTML = '<option value="">Select an account...</option>';
+
+                data.accounts.forEach(account => {
+                    const option = document.createElement('option');
+                    option.value = account.account_id;
+                    option.textContent = `${account.company_name} (${account.account_id})`;
+                    selector.appendChild(option);
+                });
+
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                document.getElementById('loading').innerHTML = `
+                    <div class="error">
+                        <strong>Cannot connect to dashboard server</strong><br><br>
+                        Start the server with:<br>
+                        <code style="background: white; padding: 0.5rem; display: inline-block; margin-top: 0.5rem;">
+                        cd scripts && python dashboard_server.py
+                        </code>
+                    </div>
+                `;
+            }
+        }
+
+        // Load specific account
+        async function loadAccount() {
+            const accountId = document.getElementById('accountSelector').value;
+            if (!accountId) {
+                document.getElementById('content').style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8000/api/account/${accountId}`);
+                currentAccount = await response.json();
+
+                document.getElementById('content').style.display = 'block';
+
+                // Display data in tabs
+                displayJSON('v2-memo-content', currentAccount.v2_memo);
+                displayJSON('v2-agent-content', currentAccount.v2_agent);
+                displayJSON('v1-memo-content', currentAccount.v1_memo);
+                displayJSON('v1-agent-content', currentAccount.v1_agent);
+                displayChangelog('changelog-content', currentAccount.changelog);
+
+            } catch (error) {
+                console.error('Error loading account:', error);
+            }
+        }
+
+        // Display JSON with syntax highlighting
+        function displayJSON(elementId, data) {
+            const element = document.getElementById(elementId);
+            if (!data) {
+                element.textContent = 'No data available';
+                return;
+            }
+
+            const formatted = JSON.stringify(data, null, 2);
+            element.innerHTML = syntaxHighlight(formatted);
+        }
+
+        // Display changelog in a readable format
+        function displayChangelog(elementId, changelog) {
+            const element = document.getElementById(elementId);
+
+            if (!changelog) {
+                element.innerHTML = '<p>No changelog available</p>';
+                return;
+            }
+
+            let html = '';
+
+            changelog.changes.forEach((change, index) => {
+                html += `
+                    <div class="changelog-item">
+                        <div class="changelog-field">${change.field}</div>
+                        <div class="changelog-values">
+                            <div class="value-box">
+                                <strong>Old:</strong><br>
+                                ${formatValue(change.old_value)}
+                            </div>
+                            <div class="arrow">→</div>
+                            <div class="value-box">
+                                <strong>New:</strong><br>
+                                ${formatValue(change.new_value)}
+                            </div>
+                        </div>
+                        <div class="reason-text">
+                            ${change.reason}
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (changelog.prompt_diff) {
+                html += `
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                        <strong style="color: #cbd5e1; font-family: 'Inter'; display: block; margin-bottom: 1rem;">Prompt Changes Overview:</strong>
+                        <div style="font-family: 'ui-monospace', monospace; font-size: 0.85rem; color: #94a3b8;">
+                            ${changelog.prompt_diff.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+            }
+
+            element.innerHTML = html;
+        }
+
+        // Format value for display
+        function formatValue(value) {
+            if (value === null || value === undefined) {
+                return '<em style="color: #999;">null</em>';
+            }
+            if (typeof value === 'object') {
+                return '<pre style="margin: 0; background: transparent;">' + JSON.stringify(value, null, 2) + '</pre>';
+            }
+            return String(value);
+        }
+
+        // Syntax highlighting for JSON
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // Show tab
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', loadAccounts);
+    </script>
+</body>
+
+</html>

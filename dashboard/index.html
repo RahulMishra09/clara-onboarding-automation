@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clara AI - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: rgba(30, 41, 59, 0.7);
+            --surface-hover: rgba(51, 65, 85, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-hover: #2563eb;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --pending-color: #64748b;
+            --glass-blur: blur(16px);
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Animations */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            33% {
+                transform: translate(30px, -50px) scale(1.1);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) scale(0.9);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+                filter: blur(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .animate-up {
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+        }
+
+        .delay-4 {
+            animation-delay: 0.4s;
+        }
+
+        .delay-5 {
+            animation-delay: 0.5s;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        .bg-orbs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: 0.4;
+            animation: float 20s infinite ease-in-out;
+            will-change: transform;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(59, 130, 246, 0.5);
+            top: -150px;
+            left: -100px;
+        }
+
+        .orb-2 {
+            width: 600px;
+            height: 600px;
+            background: rgba(139, 92, 246, 0.4);
+            bottom: -200px;
+            right: -150px;
+            animation-delay: -5s;
+        }
+
+        .orb-3 {
+            width: 400px;
+            height: 400px;
+            background: rgba(16, 185, 129, 0.2);
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -10s;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .glass-panel {
+            background: var(--surface-color);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: var(--shadow-md);
+        }
+
+        header {
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            padding: 2rem;
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: var(--surface-hover);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+            text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 600;
+        }
+
+        .accounts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .account-card {
+            padding: 1.5rem;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .account-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--border-color), transparent);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .account-card:hover {
+            transform: translateY(-4px);
+            background: var(--surface-hover);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .account-card:hover::before {
+            opacity: 1;
+        }
+
+        .account-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .account-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.25rem;
+            letter-spacing: -0.01em;
+        }
+
+        .account-id {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-badge {
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .status-badge::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-v2 {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-v2::before {
+            background-color: #34d399;
+            box-shadow: 0 0 8px #34d399;
+        }
+
+        .status-v1 {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .status-v1::before {
+            background-color: #fbbf24;
+            box-shadow: 0 0 8px #fbbf24;
+        }
+
+        .status-pending {
+            background: rgba(100, 116, 139, 0.15);
+            color: #cbd5e1;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+        }
+
+        .status-pending::before {
+            background-color: #cbd5e1;
+        }
+
+        .account-details {
+            margin-top: auto;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .unknowns {
+            background: rgba(245, 158, 11, 0.1);
+            border-left: 3px solid var(--warning-color);
+            padding: 0.85rem;
+            margin-top: 1.25rem;
+            border-radius: 0 8px 8px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .unknowns-title {
+            font-weight: 600;
+            color: #fbbf24;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .unknowns-count {
+            color: #fde68a;
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .empty-state h2 {
+            color: #fff;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .filter-bar {
+            padding: 1.25rem;
+            margin-bottom: 2.5rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .filter-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .filter-input-wrapper::before {
+            content: '🔍';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.5;
+            font-size: 0.9rem;
+        }
+
+        .search-box,
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            color: #fff;
+            font-family: inherit;
+            transition: var(--transition);
+            outline: none;
+        }
+
+        .search-box {
+            padding-left: 2.5rem;
+        }
+
+        .search-box:focus,
+        select:focus {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box::placeholder {
+            color: var(--text-secondary);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
+        }
+
+        select option {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loading::after {
+            content: '';
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
+    <div class="container">
+        <header class="glass-panel animate-up">
+            <h1>Clara AI Automation Dashboard</h1>
+            <p class="subtitle">System Overview & Processed Configurations</p>
+        </header>
+
+        <div class="stats" id="stats">
+            <div class="stat-card glass-panel animate-up delay-1">
+                <div class="stat-value" id="totalAccounts">0</div>
+                <div class="stat-label">Total Accounts</div>
+            </div>
+            <div class="stat-card glass-panel animate-up delay-2">
+                <div class="stat-value" id="v1Complete">0</div>
+                <div class="stat-label">v1 Complete</div>
+            </div>
+            <div class="stat-card glass-panel animate-up delay-3">
+                <div class="stat-value" id="v2Complete">0</div>
+                <div class="stat-label">v2 Complete</div>
+            </div>
+            <div class="stat-card glass-panel animate-up delay-4">
+                <div class="stat-value" id="fullyComplete">0</div>
+                <div class="stat-label">Fully Complete</div>
+            </div>
+        </div>
+
+        <div class="filter-bar glass-panel animate-up delay-5">
+            <div class="filter-input-wrapper">
+                <input type="text" class="search-box" id="searchBox" placeholder="Search accounts by name or ID...">
+            </div>
+            <select id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="v2">v2 Complete</option>
+                <option value="v1">v1 Only</option>
+                <option value="pending">Pending</option>
+            </select>
+        </div>
+
+        <div id="accountsContainer">
+            <div class="loading">Loading accounts...</div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const OUTPUTS_PATH = '../outputs/accounts';
+
+        // State
+        let allAccounts = [];
+        let filteredAccounts = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAccounts();
+            setupFilters();
+        });
+
+        function setupFilters() {
+            const searchBox = document.getElementById('searchBox');
+            const statusFilter = document.getElementById('statusFilter');
+
+            searchBox.addEventListener('input', filterAccounts);
+            statusFilter.addEventListener('change', filterAccounts);
+        }
+
+        function filterAccounts() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            filteredAccounts = allAccounts.filter(account => {
+                const matchesSearch = account.company_name.toLowerCase().includes(searchTerm) ||
+                    account.account_id.toLowerCase().includes(searchTerm);
+
+                let matchesStatus = true;
+                if (statusFilter === 'v2') {
+                    matchesStatus = account.has_v2;
+                } else if (statusFilter === 'v1') {
+                    matchesStatus = account.has_v1 && !account.has_v2;
+                } else if (statusFilter === 'pending') {
+                    matchesStatus = !account.has_v1;
+                }
+
+                return matchesSearch && matchesStatus;
+            });
+
+            renderAccounts();
+        }
+
+        async function loadAccounts() {
+            try {
+                // In a real implementation, this would fetch from an API
+                // For now, we'll show a message to use the Python script
+                showSetupInstructions();
+            } catch (error) {
+                console.error('Error loading accounts:', error);
+                showError();
+            }
+        }
+
+        function showSetupInstructions() {
+            const container = document.getElementById('accountsContainer');
+            container.innerHTML = `
+                <div class="empty-state glass-panel">
+                    <h2>Dashboard Setup Required</h2>
+                    <p>To view your accounts, you need to serve the dashboard with a local server.</p>
+                    <p><strong>Quick Setup:</strong></p>
+                    <pre style="background: #f3f4f6; padding: 1rem; border-radius: 6px; text-align: left; margin: 1rem auto; max-width: 600px;">
+# From the project root:
+cd dashboard
+python3 -m http.server 8000
+
+# Then open:
+# http://localhost:8000
+                    </pre>
+                    <p style="margin-top: 1.5rem;">Or use the Python viewer script:</p>
+                    <pre style="background: #f3f4f6; padding: 1rem; border-radius: 6px; text-align: left; margin: 1rem auto; max-width: 600px;">
+cd scripts
+python dashboard_server.py
+                    </pre>
+                    <a href="../outputs/accounts/" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">
+                        Browse Output Files
+                    </a>
+                </div>
+            `;
+        }
+
+        function updateStats(accounts) {
+            const stats = {
+                total: accounts.length,
+                v1: accounts.filter(a => a.has_v1).length,
+                v2: accounts.filter(a => a.has_v2).length,
+                complete: accounts.filter(a => a.has_v2 && a.has_changelog).length
+            };
+
+            document.getElementById('totalAccounts').textContent = stats.total;
+            document.getElementById('v1Complete').textContent = stats.v1;
+            document.getElementById('v2Complete').textContent = stats.v2;
+            document.getElementById('fullyComplete').textContent = stats.complete;
+        }
+
+        function renderAccounts() {
+            const container = document.getElementById('accountsContainer');
+
+            if (filteredAccounts.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state glass-panel animate-up">
+                        <h2>No Accounts Found</h2>
+                        <p>Try adjusting your filters or process some transcripts first.</p>
+                        <a href="../RUN_NOW.md" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">
+                            Get Started
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="accounts-grid">
+                    ${filteredAccounts.map((account, index) => createAccountCard(account, index)).join('')}
+                </div>
+            `;
+        }
+
+        function createAccountCard(account, index) {
+            const status = account.has_v2 ? 'v2' : account.has_v1 ? 'v1' : 'pending';
+            const statusText = account.has_v2 ? 'v2 Complete' : account.has_v1 ? 'v1 Complete' : 'Pending';
+
+            // Stagger animations based on index (up to 15 cards to prevent excessive delays)
+            const animationDelay = Math.min(index * 0.1, 1.5).toFixed(2);
+
+            return `
+                <div class="account-card glass-panel animate-up" style="animation-delay: ${animationDelay}s">
+                    <div class="account-header">
+                        <div>
+                            <div class="account-name">${account.company_name}</div>
+                            <div class="account-id">${account.account_id}</div>
+                        </div>
+                        <span class="status-badge status-${status}">${statusText}</span>
+                    </div>
+
+                    <div class="account-details">
+                        <div class="detail-row">
+                            <span class="detail-label">v1 Memo:</span>
+                            <span class="detail-value">${account.has_v1 ? '✓' : '✗'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">v1 Agent Spec:</span>
+                            <span class="detail-value">${account.has_v1_agent ? '✓' : '✗'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">v2 Memo:</span>
+                            <span class="detail-value">${account.has_v2 ? '✓' : '✗'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">v2 Agent Spec:</span>
+                            <span class="detail-value">${account.has_v2_agent ? '✓' : '✗'}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Changelog:</span>
+                            <span class="detail-value">${account.has_changelog ? '✓' : '✗'}</span>
+                        </div>
+                    </div>
+
+                    ${account.unknowns_count > 0 ? `
+                        <div class="unknowns">
+                            <div class="unknowns-title">⚠ Unknowns</div>
+                            <div class="unknowns-count">${account.unknowns_count} items need clarification</div>
+                        </div>
+                    ` : ''}
+
+                    <div class="actions">
+                        ${account.has_v1 ? `
+                            <a href="../outputs/accounts/${account.account_id}/v1/memo.json" class="btn btn-secondary" target="_blank">
+                                View v1
+                            </a>
+                        ` : ''}
+                        ${account.has_v2 ? `
+                            <a href="../outputs/accounts/${account.account_id}/v2/memo.json" class="btn btn-primary" target="_blank">
+                                View v2
+                            </a>
+                        ` : ''}
+                        ${account.has_changelog ? `
+                            <a href="../outputs/accounts/${account.account_id}/v2/changelog.json" class="btn btn-secondary" target="_blank">
+                                Changelog
+                            </a>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showError() {
+            const container = document.getElementById('accountsContainer');
+            container.innerHTML = `
+                <div class="empty-state glass-panel">
+                    <h2>Error Loading Accounts</h2>
+                    <p>Could not load account data. Make sure you've processed some transcripts first.</p>
+                    <a href="../RUN_NOW.md" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">
+                        Get Started
+                    </a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+
+</html>
